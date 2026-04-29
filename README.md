@@ -32,6 +32,7 @@
 - [Contributing](#Contributing)
 
 Upload and/or Publish Web Extensions to the Google Chrome Web Store v2 using Service Account Credentials, JSON, or Token.
+Additionally, you can check the status of your extension and reuse the generated bearer token later in the workflow from the [Outputs](#outputs).
 
 ```yaml
 - name: 'Web Store Publish'
@@ -192,7 +193,7 @@ https://github.com/cssnr/webstore-publish-action/network/dependents
 
 > **¹** Only available if this input was provided.
 
-This lets you re-use the generated `token` or validate the response data.
+This lets you reuse the generated `token` or validate the response data.
 
 ```yaml
 - name: 'Web Store Publish'
@@ -201,8 +202,7 @@ This lets you re-use the generated `token` or validate the response data.
   with:
     extension_id: ifefifghpkllfibejafbakmflidjcjfp
     publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
-    zip_file: chrome-extension.zip # uploads extension
-    submit: true # submits extension for publishing
+    status: true # checks the status of the extension
     json_data: ${{ secrets.WEBSTORE_JSON }}
 
 - name: 'Echo Outputs'
