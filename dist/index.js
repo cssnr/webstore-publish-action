@@ -72570,8 +72570,9 @@ catch (e) {
         console.log('isAxiosError...');
         const data = e.response?.data;
         console.log('data:', data);
-        const message = data?.error_detail || data?.message;
-        setFailed(message || `Unknown Axios Error: ${data?.status}`);
+        const message = data?.error?.message;
+        console.log('message:', message);
+        setFailed(message || 'Unknown Axios Error');
     }
     else if (e instanceof Error) {
         setFailed(e.message);

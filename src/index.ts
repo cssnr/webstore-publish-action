@@ -220,8 +220,9 @@ try {
     console.log('isAxiosError...')
     const data = e.response?.data
     console.log('data:', data)
-    const message = data?.error_detail || data?.message
-    core.setFailed(message || `Unknown Axios Error: ${data?.status}`)
+    const message = data?.error?.message
+    console.log('message:', message)
+    core.setFailed(message || 'Unknown Axios Error')
   } else if (e instanceof Error) {
     core.setFailed(e.message)
   } else {
