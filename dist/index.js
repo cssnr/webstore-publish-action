@@ -72502,9 +72502,7 @@ async function getToken(inputs) {
         key = data.private_key;
     }
     console.log('email length:', email.length);
-    console.log('email:', email.slice(16));
     console.log('key length:', key.length);
-    console.log('key:', key.slice(0, 27));
     if (!email || !key) {
         throw new Error('You must provide the credentials JSON or both key/email.');
     }
@@ -72513,7 +72511,6 @@ async function getToken(inputs) {
     info('Getting Access Token...');
     const token = await client.getAccessToken();
     console.log('token.token length:', token.token?.length);
-    console.log('token.token:', token.token?.slice(0, 32));
     return token.token;
 }
 async function addSummary(inputs, upload, publish, status) {
@@ -72565,20 +72562,21 @@ try {
     await main();
 }
 catch (e) {
-    console.log(e);
     if (axios.isAxiosError(e)) {
-        console.log('isAxiosError...');
+        console.log('isAxiosError:', e.message);
         const data = e.response?.data;
         console.log('data:', data);
         const message = data?.error?.message;
         console.log('message:', message);
-        setFailed(message || 'Unknown Axios Error');
+        setFailed(message || e.message || 'Unknown Axios Error');
     }
     else if (e instanceof Error) {
+        console.log('Error:', e);
         setFailed(e.message);
     }
     else {
-        setFailed('Unknown Error.');
+        console.log('Unknown Error:', e);
+        setFailed('Unknown Error');
     }
 }
 
