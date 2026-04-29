@@ -1,18 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "lib": ["ES2022"],
     "outDir": "dist",
     "rootDir": "src",
     "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "target": "ES2022",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "target": "ESNext",
     "resolveJsonModule": true,
     "removeComments": true,
     "skipLibCheck": true,
-    "strict": true,
     "types": ["node"]
   },
   "include": ["src"]

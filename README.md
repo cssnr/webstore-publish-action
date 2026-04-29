@@ -25,6 +25,7 @@
 - [Features](#Features)
 - [Setup](#Setup)
 - [Inputs](#Inputs)
+- [Outputs](#Outputs)
 - [Examples](#Examples)
 - [Tags](#Tags)
 - [Support](#Support)
@@ -48,13 +49,14 @@ For additional ways to provide authentication, see the [Inputs](#Inputs) or [Exa
 ## Features
 
 - Upload, Publish, or Both
+- Check Extension Status
 - Works With Service Accounts
 - Provide JSON Data, File, Credentials or Token
+- Outputs Generated Bearer Token
 - Uses the Google Chrome [Web Store API v2](https://developer.chrome.com/docs/webstore/api/reference/rest)
 
 ### Upcoming
 
-- Add Outputs for upload and submit responses
 - Add Outputs for download, dashboard, and item URLs.
 
 The API also allows getting the status, cancelling a submission and changing deploy percentage.
@@ -88,6 +90,7 @@ To get your Publisher ID, see these instructions:
 | [publisher_id](#publisher_id) | **Yes** |    -    | Chrome Publisher ID          |
 | [zip_file](#zip_file)         |    -    |    -    | Chrome Extension ZIP File    |
 | [submit](#submit)             |    -    | `false` | Submit Extension for Review  |
+| [status](#status)             |    -    | `false` | Check Extension Status       |
 | **json_data**                 |    -    |    -    | Service Account JSON Data    |
 | **json_file**                 |    -    |    -    | Service Account JSON File    |
 | **client_email**              |    -    |    -    | Service Account Client Email |
@@ -115,6 +118,10 @@ Omit this to skip uploading to [submit](#submit) only.
 #### submit
 
 Set this to `true` to submit the extension for publishing/review.
+
+### status
+
+Set this to `true` to check the extension status or just test the workflow.
 
 ## Examples
 
@@ -173,6 +180,38 @@ If you already generated a bearer token.
 
 For more examples, you can check out other projects using this action:  
 https://github.com/cssnr/webstore-publish-action/network/dependents
+
+## Outputs
+
+| Output  | Description                 |
+| :------ | :-------------------------- |
+| token   | Bearer Token                |
+| upload  | Upload Response JSON **¹**  |
+| publish | Publish Response JSON **¹** |
+| status  | Status Response JSON **¹**  |
+
+> **¹** Only available if this input was provided.
+
+This lets you re-use the generated `token` or validate the response data.
+
+```yaml
+- name: 'Web Store Publish'
+  id: publish
+  uses: cssnr/webstore-publish-action@master
+  with:
+    extension_id: ifefifghpkllfibejafbakmflidjcjfp
+    publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
+    zip_file: chrome-extension.zip # uploads extension
+    submit: true # submits extension for publishing
+    json_data: ${{ secrets.WEBSTORE_JSON }}
+
+- name: 'Echo Outputs'
+  run: |
+    echo "token: ${{ steps.publish.outputs.token }}"
+    echo "upload: ${{ steps.publish.outputs.upload }}"
+    echo "publish: ${{ steps.publish.outputs.publish }}"
+    echo "status: ${{ steps.publish.outputs.status }}"
+```
 
 ## Tags
 

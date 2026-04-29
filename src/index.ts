@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-// @ts-ignore - for google-auth-library
+// @ts-expect-error - for google-auth-library
 if (!globalThis.fetch) globalThis.fetch = fetch
 import * as core from '@actions/core'
 import axios from 'axios'
@@ -14,6 +14,7 @@ const inputs = {
 
   zipFile: core.getInput('zip_file'),
   submit: core.getBooleanInput('submit'),
+  status: core.getBooleanInput('status'),
 
   jsonData: core.getInput('json_data'),
   jsonFile: core.getInput('json_file'),
@@ -55,8 +56,8 @@ async function main() /* NOSONAR */ {
   // core.debug(`src: ${src}`)
 
   // Setup
-  if (!inputs.zipFile && !inputs.submit) {
-    return core.setFailed('You must provide a zip file or submit an extension.')
+  if (!inputs.zipFile && !inputs.submit && !inputs.status) {
+    return core.setFailed('You must provide a zip file, submit extension or get status.')
   }
   if (inputs.zipFile && !existsSync(inputs.zipFile)) {
     return core.setFailed(`Unable to locate zip file: ${inputs.zipFile}`)
@@ -67,16 +68,14 @@ async function main() /* NOSONAR */ {
   if (!token) {
     return core.setFailed('Unable to get Access Token.')
   }
+  core.setSecret(token)
 
   // Process
   const api = new Webstore(inputs.pubID, inputs.extID, token)
 
-  // const extension = await api.getExtension()
-  // console.log('extension:', extension)
-  // console.log('extension JSON:', JSON.stringify(extension, null, 2))
-
   let upload
   if (inputs.zipFile) {
+    core.info(`Uploading ZIP: ${inputs.zipFile}`)
     const file = readFileSync(inputs.zipFile)
     upload = await api.uploadFile(file)
     core.startGroup('Upload')
@@ -88,6 +87,7 @@ async function main() /* NOSONAR */ {
 
   let publish
   if (inputs.submit) {
+    core.info(`Submitting Extension: ${inputs.extID}`)
     publish = await api.publishExtension()
     core.startGroup('Publish')
     console.log(publish)
@@ -96,16 +96,32 @@ async function main() /* NOSONAR */ {
     core.info('Skipping Submit for Review...')
   }
 
+  let status
+  if (inputs.status) {
+    core.info(`Getting Status: ${inputs.extID}`)
+    status = await api.getExtension()
+    core.startGroup('Status')
+    console.log(status)
+    core.endGroup() // Status
+  }
+
   // Summary
   if (inputs.summary) {
     core.info('📝 Writing Job Summary')
     try {
-      await addSummary(inputs, upload, publish)
+      await addSummary(inputs, upload, publish, status)
     } catch (e) {
       console.log(e)
       if (e instanceof Error) core.warning(`Error writing Job Summary ${e.message}`)
     }
   }
+
+  // Set Outputs
+  core.info('📩 Setting Outputs')
+  core.setOutput('token', token)
+  if (upload) core.setOutput('upload', upload)
+  if (publish) core.setOutput('publish', publish)
+  if (status) core.setOutput('status', status)
 
   core.info(`✅ \u001b[32;1mFinished Success`)
 }
@@ -122,7 +138,9 @@ async function getToken(inputs: Inputs) {
     email = data.client_email
     key = data.private_key
   }
+  console.log('email length:', email.length)
   console.log('email:', email.slice(16))
+  console.log('key length:', key.length)
   console.log('key:', key.slice(0, 27))
   if (!email || !key) {
     throw new Error('You must provide the credentials JSON or both key/email.')
@@ -134,11 +152,12 @@ async function getToken(inputs: Inputs) {
   const client = new JWT({ email, key, scopes })
   core.info('Getting Access Token...')
   const token = await client.getAccessToken()
+  console.log('token.token length:', token.token?.length)
   console.log('token.token:', token.token?.slice(0, 32))
   return token.token
 }
 
-async function addSummary(inputs: Inputs, upload: any, publish: any) {
+async function addSummary(inputs: Inputs, upload: any, publish: any, status: any) {
   const itemUrl = `https://chromewebstore.google.com/detail/${inputs.extID}`
   const packageUrl = `https://chrome.google.com/webstore/devconsole/${inputs.pubID}/${inputs.extID}/edit/package`
   const downloadUrl = `https://chrome.google.com/webstore/download/${inputs.extID}/revision/__DRAFT/package/main/crx/3`
@@ -155,6 +174,10 @@ async function addSummary(inputs: Inputs, upload: any, publish: any) {
   if (publish) {
     core.summary.addRaw(`\n\n:rocket: Successfully Submitted Extension.\n\n`)
     core.summary.addCodeBlock(JSON.stringify(publish, null, 2), 'json')
+  }
+  if (status) {
+    core.summary.addRaw(`\n\n:question: Extension Status.\n\n`)
+    core.summary.addCodeBlock(JSON.stringify(status, null, 2), 'json')
   }
 
   core.summary.addRaw('\n<details><summary>Details</summary>')

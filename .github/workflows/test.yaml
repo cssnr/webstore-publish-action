@@ -51,13 +51,21 @@ jobs:
         with:
           extension_id: ipliinigkdddaaeaoncoljmdaoabgjdo
           publisher_id: 428868da-c02f-433a-b34c-208b3d01fbc3
+          status: true
           #submit: true
           #zip_file: chrome.zip
           #json_file: secret.json
           #json_data: |
           #  {"client_email": "ralf", "private_key": "brok it"}
-          #token:
+          token: ya29.c.c0AZ4bNpbHLdU8e7fEd5wKK2jXD_Nr9LuMNf5FuMEcKYe_IIBqXurMe-G_2AcVUF9pR1JHUNo1zFc1NJKKik2vbHB3XKxBFU5Ca5SAhS4el_sawBtgw_EK_ECWGphUJM4I6bxKJBidGD85CUNPtYwAeDJKlw5t-fpy8lpOgIMjVR96DMn9T4xXHQDbxZOimTh5ScFEabzn-_CoUTUR9b7l-DRZMH4oge_j8MZqyIqK9fjGvTceCDffjpzV_loSZdBxcMveGNRo66SbAUkcSggXOE5B6qjqhTz2c_0gUpcDBR86JtlyZjhLHG9wGsGXSo5eDnc49B42gGEaIoZQz2GtEXWf0mQdw1idDh3ZENNXHJp6hlH7-sLiCXMsN385Ajadkpza_Z10z5uB9UJsYefBm8bryhgh3eQk5I8aFbQuFJgOW-wsUSBkB7uQRIf_w68FrizeWYbXani1UtiscOxv-_BmM6cwz43xYJmx6niZRzpB4eWFmYYQvxOoMlsbIUOy7odWd291VRVhwtpB_B956tq8J2fOWvQXXhbd7WQ-3RbSQe419cUcSmkbeZWnRiu3IF8FoddIiVb6Qqsy7xIxehtiUyiJofikiUpge-mrVd6IgMOwOj5r53lbIZpi-08ije9OhBR72QVzg1M-B7F2ne2h_iQQp89o4Bt4Jmt1Vm3BxbXcf2rI61BwnV0kOBlaWpyneJ0u7ny9rwBhf09cfFZIJm5bR3ZOIjzpWywOB3BgglXJYQy4vRzxsSdV_nJeg-_aSl9mxBFRfXkm1mpl-ZFI9khIRMIWqn4cZVzw7gb5zOeO7W5O92Re8x3rXeVukJ_W0Z_d4oZ9srptJMxmpw15z3Bmz85pnVx7Oekw0qrqqOteQYvF_9xnMli9vlIjw_h38B2d2-ywOv3S_pBIyqenewnV6jj9Mvz5lZid2zO2IyvpuSJxhBwVSmnxpFh3e7XFyhtd-j_O9M8dai-zrhdtVecstatqOeyYdgttnVBiS0WwQlevaa5
           summary: ${{ !github.event.act }}
+
+      - name: "Echo Outputs"
+        run: |
+          echo "token: ${{ steps.test.outputs.token }}"
+          echo "upload: ${{ steps.test.outputs.upload }}"
+          echo "publish: ${{ steps.test.outputs.publish }}"
+          echo "status: ${{ steps.test.outputs.status }}"
 
       #- name: "Validate Outputs"
       #  if: ${{ !github.event.act }}
