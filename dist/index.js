@@ -8,7 +8,8 @@ import require$$1$3, { format } from 'node:url';
 import require$$0$5, { isIP } from 'node:net';
 import * as os from 'os';
 import os__default, { EOL } from 'os';
-import crypto$4 from 'crypto';
+import * as crypto$4 from 'crypto';
+import crypto__default from 'crypto';
 import * as fs from 'fs';
 import fs__default, { promises as promises$1, constants as constants$5 } from 'fs';
 import path, { resolve } from 'path';
@@ -7414,6 +7415,36 @@ function escapeProperty(s) {
         .replace(/\n/g, '%0A')
         .replace(/:/g, '%3A')
         .replace(/,/g, '%2C');
+}
+
+// For internal use, subject to change.
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function issueFileCommand(command, message) {
+    const filePath = process.env[`GITHUB_${command}`];
+    if (!filePath) {
+        throw new Error(`Unable to find environment variable for file command ${command}`);
+    }
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`Missing file at path: ${filePath}`);
+    }
+    fs.appendFileSync(filePath, `${toCommandValue(message)}${os.EOL}`, {
+        encoding: 'utf8'
+    });
+}
+function prepareKeyValueMessage(key, value) {
+    const delimiter = `ghadelimiter_${crypto$4.randomUUID()}`;
+    const convertedValue = toCommandValue(value);
+    // These should realistically never happen, but just in case someone finds a
+    // way to exploit uuid generation let's not allow keys or values that contain
+    // the delimiter.
+    if (key.includes(delimiter)) {
+        throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
+    }
+    if (convertedValue.includes(delimiter)) {
+        throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
+    }
+    return `${key}<<${delimiter}${os.EOL}${convertedValue}${os.EOL}${delimiter}`;
 }
 
 var tunnel$1 = {};
@@ -35591,6 +35622,38 @@ var ExitCode;
     ExitCode[ExitCode["Failure"] = 1] = "Failure";
 })(ExitCode || (ExitCode = {}));
 /**
+ * Registers a secret which will get masked from logs
+ *
+ * @param secret - Value of the secret to be masked
+ * @remarks
+ * This function instructs the Actions runner to mask the specified value in any
+ * logs produced during the workflow run. Once registered, the secret value will
+ * be replaced with asterisks (***) whenever it appears in console output, logs,
+ * or error messages.
+ *
+ * This is useful for protecting sensitive information such as:
+ * - API keys
+ * - Access tokens
+ * - Authentication credentials
+ * - URL parameters containing signatures (SAS tokens)
+ *
+ * Note that masking only affects future logs; any previous appearances of the
+ * secret in logs before calling this function will remain unmasked.
+ *
+ * @example
+ * ```typescript
+ * // Register an API token as a secret
+ * const apiToken = "abc123xyz456";
+ * setSecret(apiToken);
+ *
+ * // Now any logs containing this value will show *** instead
+ * console.log(`Using token: ${apiToken}`); // Outputs: "Using token: ***"
+ * ```
+ */
+function setSecret(secret) {
+    issueCommand('add-mask', {}, secret);
+}
+/**
  * Gets the value of an input.
  * Unless trimWhitespace is set to false in InputOptions, the value is also trimmed.
  * Returns an empty string if the value is not defined.
@@ -35629,6 +35692,21 @@ function getBooleanInput(name, options) {
         return false;
     throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name}\n` +
         `Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
+}
+/**
+ * Sets the value of an output.
+ *
+ * @param     name     name of the output to set
+ * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function setOutput(name, value) {
+    const filePath = process.env['GITHUB_OUTPUT'] || '';
+    if (filePath) {
+        return issueFileCommand('OUTPUT', prepareKeyValueMessage(name, value));
+    }
+    process.stdout.write(os.EOL);
+    issueCommand('set-output', { name }, toCommandValue(value));
 }
 //-----------------------------------------------------------------------
 // Results
@@ -49523,7 +49601,7 @@ function requireForm_data () {
 	var parseUrl = require$$5$4.parse;
 	var fs = fs__default;
 	var Stream = stream.Stream;
-	var crypto = crypto$4;
+	var crypto = crypto__default;
 	var mime = requireMimeTypes();
 	var asynckit = requireAsynckit();
 	var setToStringTag = /*@__PURE__*/ requireEsSetTostringtag();
@@ -50462,7 +50540,7 @@ const generateString = (size = 16, alphabet = ALPHABET.ALPHA_DIGIT) => {
   let str = '';
   const { length } = alphabet;
   const randomValues = new Uint32Array(size);
-  crypto$4.randomFillSync(randomValues);
+  crypto__default.randomFillSync(randomValues);
   for (let i = 0; i < size; i++) {
     str += alphabet[randomValues[i] % length];
   }
@@ -63608,7 +63686,7 @@ function requireCrypto$1 () {
 	// limitations under the License.
 	Object.defineProperty(crypto$1, "__esModule", { value: true });
 	crypto$1.NodeCrypto = void 0;
-	const crypto = crypto$4;
+	const crypto = crypto__default;
 	class NodeCrypto {
 	    async sha256DigestBase64(str) {
 	        return crypto.createHash('sha256').update(str).digest('base64');
@@ -66000,7 +66078,7 @@ function requireJwa () {
 	if (hasRequiredJwa) return jwa;
 	hasRequiredJwa = 1;
 	var Buffer = requireSafeBuffer().Buffer;
-	var crypto = crypto$4;
+	var crypto = crypto__default;
 	var formatEcdsa = requireEcdsaSigFormatter();
 	var util = require$$1;
 
@@ -69030,7 +69108,7 @@ function requireCertificatesubjecttokensupplier () {
 		exports$1.CertificateSubjectTokenSupplier = exports$1.InvalidConfigurationError = exports$1.CertificateSourceUnavailableError = exports$1.CERTIFICATE_CONFIGURATION_ENV_VARIABLE = void 0;
 		const util_1 = requireUtil();
 		const fs = fs__default;
-		const crypto_1 = crypto$4;
+		const crypto_1 = crypto__default;
 		const https = https$1;
 		exports$1.CERTIFICATE_CONFIGURATION_ENV_VARIABLE = 'GOOGLE_API_CERTIFICATE_CONFIG';
 		/**
@@ -72331,6 +72409,7 @@ const inputs = {
     pubID: getInput('publisher_id', { required: true }),
     zipFile: getInput('zip_file'),
     submit: getBooleanInput('submit'),
+    status: getBooleanInput('status'),
     jsonData: getInput('json_data'),
     jsonFile: getInput('json_file'),
     email: getInput('client_email'),
@@ -72346,8 +72425,8 @@ async function main() {
     startGroup('Inputs');
     console.log(inputs);
     endGroup();
-    if (!inputs.zipFile && !inputs.submit) {
-        return setFailed('You must provide a zip file or submit an extension.');
+    if (!inputs.zipFile && !inputs.submit && !inputs.status) {
+        return setFailed('You must provide a zip file, submit extension or get status.');
     }
     if (inputs.zipFile && !existsSync(inputs.zipFile)) {
         return setFailed(`Unable to locate zip file: ${inputs.zipFile}`);
@@ -72356,9 +72435,11 @@ async function main() {
     if (!token) {
         return setFailed('Unable to get Access Token.');
     }
+    setSecret(token);
     const api = new Webstore(inputs.pubID, inputs.extID, token);
     let upload;
     if (inputs.zipFile) {
+        info(`Uploading ZIP: ${inputs.zipFile}`);
         const file = readFileSync(inputs.zipFile);
         upload = await api.uploadFile(file);
         startGroup('Upload');
@@ -72370,6 +72451,7 @@ async function main() {
     }
     let publish;
     if (inputs.submit) {
+        info(`Submitting Extension: ${inputs.extID}`);
         publish = await api.publishExtension();
         startGroup('Publish');
         console.log(publish);
@@ -72378,10 +72460,18 @@ async function main() {
     else {
         info('Skipping Submit for Review...');
     }
+    let status;
+    if (inputs.status) {
+        info(`Getting Status: ${inputs.extID}`);
+        status = await api.getExtension();
+        startGroup('Status');
+        console.log(status);
+        endGroup();
+    }
     if (inputs.summary) {
         info('📝 Writing Job Summary');
         try {
-            await addSummary(inputs, upload, publish);
+            await addSummary(inputs, upload, publish, status);
         }
         catch (e) {
             console.log(e);
@@ -72389,6 +72479,14 @@ async function main() {
                 warning(`Error writing Job Summary ${e.message}`);
         }
     }
+    info('📩 Setting Outputs');
+    setOutput('token', token);
+    if (upload)
+        setOutput('upload', upload);
+    if (publish)
+        setOutput('publish', publish);
+    if (status)
+        setOutput('status', status);
     info(`✅ \u001b[32;1mFinished Success`);
 }
 async function getToken(inputs) {
@@ -72403,8 +72501,8 @@ async function getToken(inputs) {
         email = data.client_email;
         key = data.private_key;
     }
-    console.log('email:', email.slice(16));
-    console.log('key:', key.slice(0, 27));
+    console.log('email length:', email.length);
+    console.log('key length:', key.length);
     if (!email || !key) {
         throw new Error('You must provide the credentials JSON or both key/email.');
     }
@@ -72412,10 +72510,10 @@ async function getToken(inputs) {
     const client = new srcExports.JWT({ email, key, scopes });
     info('Getting Access Token...');
     const token = await client.getAccessToken();
-    console.log('token.token:', token.token?.slice(0, 32));
+    console.log('token.token length:', token.token?.length);
     return token.token;
 }
-async function addSummary(inputs, upload, publish) {
+async function addSummary(inputs, upload, publish, status) {
     const itemUrl = `https://chromewebstore.google.com/detail/${inputs.extID}`;
     const packageUrl = `https://chrome.google.com/webstore/devconsole/${inputs.pubID}/${inputs.extID}/edit/package`;
     const downloadUrl = `https://chrome.google.com/webstore/download/${inputs.extID}/revision/__DRAFT/package/main/crx/3`;
@@ -72428,6 +72526,10 @@ async function addSummary(inputs, upload, publish) {
     if (publish) {
         summary.addRaw(`\n\n:rocket: Successfully Submitted Extension.\n\n`);
         summary.addCodeBlock(JSON.stringify(publish, null, 2), 'json');
+    }
+    if (status) {
+        summary.addRaw(`\n\n:question: Extension Status.\n\n`);
+        summary.addCodeBlock(JSON.stringify(status, null, 2), 'json');
     }
     summary.addRaw('\n<details><summary>Details</summary>');
     summary.addTable([
@@ -72460,19 +72562,21 @@ try {
     await main();
 }
 catch (e) {
-    console.log(e);
     if (axios.isAxiosError(e)) {
-        console.log('isAxiosError...');
+        console.log('isAxiosError:', e.message);
         const data = e.response?.data;
         console.log('data:', data);
-        const message = data?.error_detail || data?.message;
-        setFailed(message || `Unknown Axios Error: ${data?.status}`);
+        const message = data?.error?.message;
+        console.log('message:', message);
+        setFailed(message || e.message || 'Unknown Axios Error');
     }
     else if (e instanceof Error) {
+        console.log('Error:', e);
         setFailed(e.message);
     }
     else {
-        setFailed('Unknown Error.');
+        console.log('Unknown Error:', e);
+        setFailed('Unknown Error');
     }
 }
 

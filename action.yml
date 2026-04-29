@@ -19,6 +19,9 @@ inputs:
   submit:
     description: "Submit Extension for Publishing"
     default: "false"
+  status:
+    description: "Get the Extension Status"
+    default: "false"
   json_data:
     description: "JSON String Data"
   json_file:
@@ -32,6 +35,16 @@ inputs:
   summary:
     description: "Add Summary to Job"
     default: "true"
+
+outputs:
+  token:
+    description: "Bearer Token"
+  upload:
+    description: "Upload Response JSON"
+  publish:
+    description: "Publish Response JSON"
+  status:
+    description: "Status Response JSON"
 
 runs:
   using: "node24"
