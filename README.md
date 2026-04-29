@@ -36,7 +36,7 @@ Additionally, you can check the status of your extension and reuse the generated
 
 ```yaml
 - name: 'Web Store Publish'
-  uses: cssnr/webstore-publish-action@master
+  uses: cssnr/webstore-publish-action@v1
   with:
     extension_id: ifefifghpkllfibejafbakmflidjcjfp
     publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
@@ -130,7 +130,7 @@ If you added the Credentials JSON file contents as a secret.
 
 ```yaml
 - name: 'Web Store Publish'
-  uses: cssnr/webstore-publish-action@master
+  uses: cssnr/webstore-publish-action@v1
   with:
     extension_id: ifefifghpkllfibejafbakmflidjcjfp
     publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
@@ -143,7 +143,7 @@ If you have a path to the Credentials JSON file.
 
 ```yaml
 - name: 'Web Store Publish'
-  uses: cssnr/webstore-publish-action@master
+  uses: cssnr/webstore-publish-action@v1
   with:
     extension_id: ifefifghpkllfibejafbakmflidjcjfp
     publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
@@ -156,7 +156,7 @@ If you are only providing the email and key.
 
 ```yaml
 - name: 'Web Store Publish'
-  uses: cssnr/webstore-publish-action@master
+  uses: cssnr/webstore-publish-action@v1
   with:
     extension_id: ifefifghpkllfibejafbakmflidjcjfp
     publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
@@ -170,7 +170,7 @@ If you already generated a bearer token.
 
 ```yaml
 - name: 'Web Store Publish'
-  uses: cssnr/webstore-publish-action@master
+  uses: cssnr/webstore-publish-action@v1
   with:
     extension_id: ifefifghpkllfibejafbakmflidjcjfp
     publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
@@ -198,7 +198,7 @@ This lets you reuse the generated `token` or validate the response data.
 ```yaml
 - name: 'Web Store Publish'
   id: publish
-  uses: cssnr/webstore-publish-action@master
+  uses: cssnr/webstore-publish-action@v1
   with:
     extension_id: ifefifghpkllfibejafbakmflidjcjfp
     publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
