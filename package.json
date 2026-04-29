@@ -4,16 +4,18 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npx rollup --config rollup.config.mjs",
+    "build": "rollup --config rollup.config.mjs",
     "build:watch": "npm run build -- --watch",
-    "lint": "npx eslint src --ext .ts",
+    "lint": "eslint src",
     "lint:report": "npm run lint -- --output-file eslint_report.json --format json",
-    "prettier:check": "npx prettier --check .",
-    "prettier:write": "npx prettier --write ."
+    "prettier:check": "prettier --check .",
+    "prettier:write": "prettier --write ."
   },
   "dependencies": {
     "@actions/core": "^3.0.1",
     "@actions/github": "^9.1.1",
+    "@typescript-eslint/eslint-plugin": "^8.59.1",
+    "@typescript-eslint/parser": "^8.59.1",
     "axios": "^1.15.2",
     "google-auth-library": "^10.6.2"
   },
@@ -24,12 +26,11 @@
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-typescript": "^12.3.0",
     "@types/node": "^25.6.0",
-    "@typescript-eslint/eslint-plugin": "^8.59.0",
-    "@typescript-eslint/parser": "^8.59.0",
     "eslint": "^10.2.1",
     "prettier": "^3.8.3",
     "rollup": "^4.60.2",
     "tslib": "^2.8.1",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.1"
   }
 }

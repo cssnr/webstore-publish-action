@@ -28,6 +28,7 @@ jobs:
         with:
           semver: patch
           prerelease: false
+          prefix: v
 
       - name: "Process Release Draft URL"
         run: |

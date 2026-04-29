@@ -51,6 +51,7 @@ jobs:
         with:
           extension_id: ipliinigkdddaaeaoncoljmdaoabgjdo
           publisher_id: 428868da-c02f-433a-b34c-208b3d01fbc3
+          status: true
           #submit: true
           #zip_file: chrome.zip
           #json_file: secret.json
@@ -58,6 +59,13 @@ jobs:
           #  {"client_email": "ralf", "private_key": "brok it"}
           #token:
           summary: ${{ !github.event.act }}
+
+      - name: "Echo Outputs"
+        run: |
+          echo "token: ${{ steps.test.outputs.token }}"
+          echo "upload: ${{ steps.test.outputs.upload }}"
+          echo "publish: ${{ steps.test.outputs.publish }}"
+          echo "status: ${{ steps.test.outputs.status }}"
 
       #- name: "Validate Outputs"
       #  if: ${{ !github.event.act }}
