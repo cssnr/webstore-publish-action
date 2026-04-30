@@ -72422,9 +72422,6 @@ async function main() {
         ? `\u001b[35;1m${process.env.GITHUB_ACTION_REF}`
         : '\u001b[33;1mSource';
     info(`🏳️ Starting Web Store Publish Action - ${version}`);
-    startGroup('Inputs');
-    console.log(inputs);
-    endGroup();
     if (!inputs.zipFile && !inputs.submit && !inputs.status) {
         return setFailed('You must provide a zip file, submit extension or get status.');
     }
@@ -72540,18 +72537,10 @@ async function addSummary(inputs, upload, publish, status) {
         [{ data: 'Extension ID' }, { data: inputs.extID }],
         [{ data: 'Publisher ID' }, { data: inputs.pubID }],
         [{ data: 'ZIP File' }, { data: inputs.zipFile }],
-        [{ data: 'Store Item' }, { data: `${itemUrl}` }],
-        [{ data: 'Dashboard' }, { data: `${packageUrl}` }],
-        [{ data: 'Download' }, { data: `${downloadUrl}` }],
+        [{ data: 'Store Item' }, { data: itemUrl }],
+        [{ data: 'Dashboard' }, { data: packageUrl }],
+        [{ data: 'Download' }, { data: downloadUrl }],
     ]);
-    summary.addRaw('</details>\n');
-    const bad = ['jsonData', 'jsonFile', 'email', 'key', 'token'];
-    const cleanInputs = Object.fromEntries(Object.entries(inputs).filter(([key]) => !bad.includes(key)));
-    const yaml = Object.entries(cleanInputs)
-        .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
-        .join('\n');
-    summary.addRaw('<details><summary>Inputs</summary>');
-    summary.addCodeBlock(yaml, 'yaml');
     summary.addRaw('</details>\n');
     const text = 'View Documentation, Report Issues or Request Features';
     const link = 'https://github.com/cssnr/webstore-publish-action';
