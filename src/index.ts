@@ -35,10 +35,6 @@ async function main() /* NOSONAR */ {
     : '\u001b[33;1mSource'
   core.info(`🏳️ Starting Web Store Publish Action - ${version}`)
 
-  core.startGroup('Inputs')
-  console.log(inputs)
-  core.endGroup() // Inputs
-
   // // Debug
   // core.startGroup('Debug: github.context')
   // console.log(github.context)
@@ -189,21 +185,10 @@ async function addSummary(inputs: Inputs, upload: any, publish: any, status: any
     [{ data: 'Extension ID' }, { data: inputs.extID }],
     [{ data: 'Publisher ID' }, { data: inputs.pubID }],
     [{ data: 'ZIP File' }, { data: inputs.zipFile }],
-    [{ data: 'Store Item' }, { data: `${itemUrl}` }],
-    [{ data: 'Dashboard' }, { data: `${packageUrl}` }],
-    [{ data: 'Download' }, { data: `${downloadUrl}` }],
+    [{ data: 'Store Item' }, { data: itemUrl }],
+    [{ data: 'Dashboard' }, { data: packageUrl }],
+    [{ data: 'Download' }, { data: downloadUrl }],
   ])
-  core.summary.addRaw('</details>\n')
-
-  const bad = ['jsonData', 'jsonFile', 'email', 'key', 'token']
-  const cleanInputs = Object.fromEntries(
-    Object.entries(inputs).filter(([key]) => !bad.includes(key)),
-  )
-  const yaml = Object.entries(cleanInputs)
-    .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
-    .join('\n')
-  core.summary.addRaw('<details><summary>Inputs</summary>')
-  core.summary.addCodeBlock(yaml, 'yaml')
   core.summary.addRaw('</details>\n')
 
   const text = 'View Documentation, Report Issues or Request Features'
