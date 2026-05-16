@@ -2,8 +2,9 @@ import fetch from 'node-fetch'
 // @ts-expect-error - for google-auth-library
 if (!globalThis.fetch) globalThis.fetch = fetch
 import * as core from '@actions/core'
+import * as glob from '@actions/glob'
 import axios from 'axios'
-import { existsSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { JWT } from 'google-auth-library'
 import { Webstore } from './webstore.js'
 
@@ -55,8 +56,15 @@ async function main() /* NOSONAR */ {
   if (!inputs.zipFile && !inputs.submit && !inputs.status) {
     return core.setFailed('You must provide a zip file, submit extension or get status.')
   }
-  if (inputs.zipFile && !existsSync(inputs.zipFile)) {
-    return core.setFailed(`Unable to locate zip file: ${inputs.zipFile}`)
+  let zipFile: string | undefined
+  if (inputs.zipFile) {
+    const globber = await glob.create(inputs.zipFile)
+    const files = await globber.glob()
+    console.log('files:', files)
+    const file = files[0]
+    console.log('file:', file)
+    if (!file) return core.setFailed(`No files matching glob: ${inputs.zipFile}`)
+    zipFile = file
   }
 
   const token = await getToken(inputs)
@@ -70,9 +78,9 @@ async function main() /* NOSONAR */ {
   const api = new Webstore(inputs.pubID, inputs.extID, token)
 
   let upload
-  if (inputs.zipFile) {
-    core.info(`Uploading ZIP: ${inputs.zipFile}`)
-    const file = readFileSync(inputs.zipFile)
+  if (zipFile) {
+    core.info(`Uploading ZIP: ${zipFile}`)
+    const file = readFileSync(zipFile)
     upload = await api.uploadFile(file)
     core.startGroup('Upload')
     console.log(upload)

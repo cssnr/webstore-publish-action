@@ -2,6 +2,7 @@
 [![GitHub Tag Minor](https://img.shields.io/github/v/tag/cssnr/webstore-publish-action?sort=semver&filter=!v*.*.*&logo=git&logoColor=white&labelColor=585858&label=%20)](https://github.com/cssnr/webstore-publish-action/releases)
 [![GitHub Release Version](https://img.shields.io/github/v/release/cssnr/webstore-publish-action?logo=git&logoColor=white&labelColor=585858&label=%20)](https://github.com/cssnr/webstore-publish-action/releases/latest)
 [![GitHub Dist Size](https://img.shields.io/github/size/cssnr/webstore-publish-action/dist%2Findex.js?logo=bookstack&logoColor=white&label=dist%20size)](https://github.com/cssnr/webstore-publish-action/blob/master/src)
+[![Action Run Using](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fcssnr%2Fwebstore-publish-action%2Frefs%2Fheads%2Fmaster%2Faction.yml&query=%24.runs.using&logo=githubactions&logoColor=white&label=runs)](https://github.com/cssnr/actionlint-action/blob/master/action.yml)
 [![Workflow Release](https://img.shields.io/github/actions/workflow/status/cssnr/webstore-publish-action/release.yaml?logo=norton&logoColor=white&label=release)](https://github.com/cssnr/webstore-publish-action/actions/workflows/release.yaml)
 [![Workflow Lint](https://img.shields.io/github/actions/workflow/status/cssnr/webstore-publish-action/lint.yaml?logo=norton&logoColor=white&label=lint)](https://github.com/cssnr/webstore-publish-action/actions/workflows/lint.yaml)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/cssnr/webstore-publish-action?logo=github&label=updated)](https://github.com/cssnr/webstore-publish-action)
@@ -73,7 +74,7 @@ These features can **easily** be added [on request](https://github.com/cssnr/web
 2. Download the Service Account JSON file.
 3. Open the file and copy the contents.
 4. Add the contents as the value to a GitHub Secret.
-   - Recommended to minify the JSON: `cat credentials.json | jq -c`
+   - Recommended to minify the JSON: `jq . -c credentials.json`
 5. Set the `json_data` input to the secret (see the [Examples](#Examples)).
 
 To get your Publisher ID, see these instructions:
@@ -89,7 +90,7 @@ To get your Publisher ID, see these instructions:
 | :---------------------------- | :-----: | :-----: | :--------------------------- |
 | **extension_id**              | **Yes** |    -    | Chrome Extension ID          |
 | [publisher_id](#publisher_id) | **Yes** |    -    | Chrome Publisher ID          |
-| [zip_file](#zip_file)         |    -    |    -    | Chrome Extension ZIP File    |
+| [zip_file](#zip_file)         |    -    |    -    | Extension ZIP File Glob      |
 | [submit](#submit)             |    -    | `false` | Submit Extension for Review  |
 | [status](#status)             |    -    | `false` | Check Extension Status       |
 | **json_data**                 |    -    |    -    | Service Account JSON Data    |
@@ -114,6 +115,7 @@ You can get the Publisher ID from the Developer Dashboard.
 #### zip_file
 
 This is the path to your extension archive zip file.  
+Supports file globs (uses the first file matched).  
 Omit this to skip uploading to [submit](#submit) only.
 
 #### submit
@@ -259,6 +261,7 @@ Additionally, you can support other [GitHub Actions](https://actions.cssnr.com/)
 - [Portainer Stack Deploy Action](https://github.com/cssnr/portainer-stack-deploy-action?tab=readme-ov-file#readme)
 - [Docker Context Action](https://github.com/cssnr/docker-context-action?tab=readme-ov-file#readme)
 - [Actions Up Action](https://github.com/cssnr/actions-up-action?tab=readme-ov-file#readme)
+- [Webstore Publish Action](https://github.com/cssnr/webstore-publish-action?tab=readme-ov-file#readme)
 - [Rhysd Actionlint Action](https://github.com/cssnr/actionlint-action?tab=readme-ov-file#readme)
 - [Zensical Action](https://github.com/cssnr/zensical-action?tab=readme-ov-file#readme)
 - [VirusTotal Action](https://github.com/cssnr/virustotal-action?tab=readme-ov-file#readme)

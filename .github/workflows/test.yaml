@@ -53,7 +53,7 @@ jobs:
           publisher_id: 428868da-c02f-433a-b34c-208b3d01fbc3
           status: true
           #submit: false
-          #zip_file: chrome.zip
+          #zip_file: "*.zip"
           #json_file: secret.json
           json_data: ${{ secrets.WEBSTORE_JSON }}
           #token: ${{ secrets.TOKEN }}
