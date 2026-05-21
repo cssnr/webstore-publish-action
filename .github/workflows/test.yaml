@@ -55,8 +55,8 @@ jobs:
           publish: false
           #zip_file: "*.zip"
           #json_file: secret.json
-          #json_data: ${{ secrets.WEBSTORE_JSON }}
-          token: ${{ secrets.TOKEN }}
+          json_data: ${{ secrets.WEBSTORE_JSON }}
+          #token: ${{ secrets.TOKEN }}
           summary: ${{ !github.event.act }}
 
       - name: "Echo Outputs"
