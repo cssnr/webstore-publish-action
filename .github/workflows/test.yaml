@@ -52,11 +52,11 @@ jobs:
           extension_id: ipliinigkdddaaeaoncoljmdaoabgjdo
           publisher_id: 428868da-c02f-433a-b34c-208b3d01fbc3
           status: true
-          #submit: false
+          publish: false
           #zip_file: "*.zip"
           #json_file: secret.json
-          json_data: ${{ secrets.WEBSTORE_JSON }}
-          #token: ${{ secrets.TOKEN }}
+          #json_data: ${{ secrets.WEBSTORE_JSON }}
+          token: ${{ secrets.TOKEN }}
           summary: ${{ !github.event.act }}
 
       - name: "Echo Outputs"

@@ -19,6 +19,15 @@ inputs:
   submit:
     description: "Submit Extension for Publishing"
     default: "false"
+    deprecationMessage: "Input has changed to: publish"
+  publish:
+    description: "Submit Extension for Publishing"
+  percentage:
+    description: "Deploy Percentage for Publishing"
+    default: "100"
+  skip_review:
+    description: "Skip Review for Publishing"
+    default: "false"
   status:
     description: "Get the Extension Status"
     default: "false"

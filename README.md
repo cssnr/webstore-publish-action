@@ -42,7 +42,7 @@ Additionally, you can check the status of your extension and reuse the generated
     extension_id: ifefifghpkllfibejafbakmflidjcjfp
     publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
     zip_file: chrome-extension.zip # uploads extension
-    submit: true # submits extension for publishing
+    publish: default # submits extension for publishing
     json_data: ${{ secrets.WEBSTORE_JSON }}
 ```
 
@@ -91,7 +91,9 @@ To get your Publisher ID, see these instructions:
 | **extension_id**              | **Yes** |    -    | Chrome Extension ID          |
 | [publisher_id](#publisher_id) | **Yes** |    -    | Chrome Publisher ID          |
 | [zip_file](#zip_file)         |    -    |    -    | Extension ZIP File Glob      |
-| [submit](#submit)             |    -    | `false` | Submit Extension for Review  |
+| [publish](#publish)           |    -    |    -    | Submit [`default`, `staged`] |
+| **percentage**                |    -    |  `100`  | Deploy Percentage            |
+| **skip_review**               |    -    | `false` | For `declarativeNetRequest`  |
 | [status](#status)             |    -    | `false` | Check Extension Status       |
 | **json_data**                 |    -    |    -    | Service Account JSON Data    |
 | **json_file**                 |    -    |    -    | Service Account JSON File    |
@@ -116,11 +118,19 @@ You can get the Publisher ID from the Developer Dashboard.
 
 This is the path to your extension archive zip file.  
 Supports file globs (uses the first file matched).  
-Omit this to skip uploading to [submit](#submit) only.
+Omit this to skip uploading.
 
-#### submit
+#### publish
 
-Set this to `true` to submit the extension for publishing/review.
+Omit this input if you do not want to submit for publishing.
+
+|   Value   | Description                            |
+| :-------: | :------------------------------------- |
+|     -     | unset will NOT submit for publishing   |
+| `default` | publish automatically after approval   |
+| `staged`  | wait for manual publish after approval |
+|  `true`   | same as `default` (deprecated)         |
+|  `false`  | same as unset (deprecated)             |
 
 ### status
 
@@ -137,7 +147,7 @@ If you added the Credentials JSON file contents as a secret.
     extension_id: ifefifghpkllfibejafbakmflidjcjfp
     publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
     zip_file: chrome-extension.zip # uploads extension
-    submit: true # submits extension for publishing
+    publish: default # submits extension for publishing
     json_data: ${{ secrets.WEBSTORE_JSON }}
 ```
 
@@ -150,7 +160,7 @@ If you have a path to the Credentials JSON file.
     extension_id: ifefifghpkllfibejafbakmflidjcjfp
     publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
     zip_file: chrome-extension.zip # uploads extension
-    submit: true # submits extension for publishing
+    publish: staged # stages extension for publishing
     json_file: service-account-credentials.json
 ```
 
@@ -163,7 +173,7 @@ If you are only providing the email and key.
     extension_id: ifefifghpkllfibejafbakmflidjcjfp
     publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
     zip_file: chrome-extension.zip # uploads extension
-    submit: true # submits extension for publishing
+    publish: default # submits extension for publishing
     email: ${{ secrets.CLIENT_EMAIL }}
     key: ${{ secrets.PRIVATE_KEY }}
 ```
@@ -177,7 +187,7 @@ If you already generated a bearer token.
     extension_id: ifefifghpkllfibejafbakmflidjcjfp
     publisher_id: 019dc0fc-fc68-74d0-9f66-0021d757685b
     zip_file: chrome-extension.zip # uploads extension
-    submit: true # submits extension for publishing
+    publish: staged # stages extension for publishing
     token: ${{ env.BEARER_TOKEN }}
 ```
 

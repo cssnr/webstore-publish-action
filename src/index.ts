@@ -14,7 +14,10 @@ const inputs = {
   pubID: core.getInput('publisher_id', { required: true }),
 
   zipFile: core.getInput('zip_file'),
-  submit: core.getBooleanInput('submit'),
+  submit: core.getBooleanInput('submit'), // DEPRECATED - publish
+  publish: core.getInput('publish').toLowerCase(),
+  percentage: Number.parseInt(core.getInput('percentage')),
+  skipReview: core.getBooleanInput('skip_review'),
   status: core.getBooleanInput('status'),
 
   jsonData: core.getInput('json_data'),
@@ -29,6 +32,14 @@ const inputs = {
 } as const
 
 type Inputs = typeof inputs
+
+const publishMap: Record<any, 'DEFAULT_PUBLISH' | 'STAGED_PUBLISH' | undefined> = {
+  default: 'DEFAULT_PUBLISH',
+  staged: 'STAGED_PUBLISH',
+  true: 'DEFAULT_PUBLISH', // PUBLISH_TYPE_UNSPECIFIED == DEFAULT_PUBLISH
+  false: undefined,
+  '': undefined,
+}
 
 async function main() /* NOSONAR */ {
   const version: string = process.env.GITHUB_ACTION_REF
@@ -52,8 +63,10 @@ async function main() /* NOSONAR */ {
   // const src = path.resolve(__dirname, '../src')
   // core.debug(`src: ${src}`)
 
+  const submitPublish = publishMap[inputs.publish || String(inputs.submit)]
+
   // Setup
-  if (!inputs.zipFile && !inputs.submit && !inputs.status) {
+  if (!inputs.zipFile && !submitPublish && !inputs.status) {
     return core.setFailed('You must provide a zip file, submit extension or get status.')
   }
   let zipFile: string | undefined
@@ -67,11 +80,10 @@ async function main() /* NOSONAR */ {
     zipFile = file
   }
 
+  // Token
   const token = await getToken(inputs)
   // console.log('token:', token)
-  if (!token) {
-    return core.setFailed('Unable to get Access Token.')
-  }
+  if (!token) return core.setFailed('Unable to get Access Token.')
   core.setSecret(token)
 
   // Process
@@ -90,14 +102,21 @@ async function main() /* NOSONAR */ {
   }
 
   let publish
-  if (inputs.submit) {
+  if (submitPublish) {
     core.info(`Submitting Extension: ${inputs.extID}`)
-    publish = await api.publishExtension()
+    console.log('submitPublish:', submitPublish)
+    console.log('deployPercentage:', inputs.percentage)
+    console.log('skipReview:', inputs.skipReview)
+    publish = await api.publishExtension({
+      publishType: submitPublish,
+      deployInfos: [{ deployPercentage: inputs.percentage }],
+      skipReview: inputs.skipReview,
+    })
     core.startGroup('Publish')
     console.log(publish)
     core.endGroup() // Publish
   } else {
-    core.info('Skipping Submit for Review...')
+    core.info('Skipping Submit for Publishing...')
   }
 
   let status
