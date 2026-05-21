@@ -76766,8 +76766,8 @@ class Webstore {
         const response = await this.client.post(`/upload/v2/publishers/${this.pubId}/items/${this.extId}:upload`, file, { headers: { 'Content-Type': 'application/zip' } });
         return response.data;
     }
-    async publishExtension() {
-        const response = await this.client.post(`/v2/publishers/${this.pubId}/items/${this.extId}:publish`);
+    async publishExtension(options) {
+        const response = await this.client.post(`/v2/publishers/${this.pubId}/items/${this.extId}:publish`, options);
         return response.data;
     }
 }
@@ -76779,6 +76779,9 @@ const inputs = {
     pubID: getInput('publisher_id', { required: true }),
     zipFile: getInput('zip_file'),
     submit: getBooleanInput('submit'),
+    publish: getInput('publish').toLowerCase(),
+    percentage: Number.parseInt(getInput('percentage')),
+    skipReview: getBooleanInput('skip_review'),
     status: getBooleanInput('status'),
     jsonData: getInput('json_data'),
     jsonFile: getInput('json_file'),
@@ -76787,12 +76790,20 @@ const inputs = {
     token: getInput('token'),
     summary: getBooleanInput('summary'),
 };
+const publishMap = {
+    default: 'DEFAULT_PUBLISH',
+    staged: 'STAGED_PUBLISH',
+    true: 'DEFAULT_PUBLISH',
+    false: undefined,
+    '': undefined,
+};
 async function main() {
     const version = process.env.GITHUB_ACTION_REF
         ? `\u001b[35;1m${process.env.GITHUB_ACTION_REF}`
         : '\u001b[33;1mSource';
     info(`🏳️ Starting Web Store Publish Action - ${version}`);
-    if (!inputs.zipFile && !inputs.submit && !inputs.status) {
+    const submitPublish = publishMap[inputs.publish || String(inputs.submit)];
+    if (!inputs.zipFile && !submitPublish && !inputs.status) {
         return setFailed('You must provide a zip file, submit extension or get status.');
     }
     let zipFile;
@@ -76807,9 +76818,8 @@ async function main() {
         zipFile = file;
     }
     const token = await getToken(inputs);
-    if (!token) {
+    if (!token)
         return setFailed('Unable to get Access Token.');
-    }
     setSecret(token);
     const api = new Webstore(inputs.pubID, inputs.extID, token);
     let upload;
@@ -76825,15 +76835,22 @@ async function main() {
         info('Skipping Extension Upload...');
     }
     let publish;
-    if (inputs.submit) {
+    if (submitPublish) {
         info(`Submitting Extension: ${inputs.extID}`);
-        publish = await api.publishExtension();
+        console.log('submitPublish:', submitPublish);
+        console.log('deployPercentage:', inputs.percentage);
+        console.log('skipReview:', inputs.skipReview);
+        publish = await api.publishExtension({
+            publishType: submitPublish,
+            deployInfos: [{ deployPercentage: inputs.percentage }],
+            skipReview: inputs.skipReview,
+        });
         startGroup('Publish');
         console.log(publish);
         endGroup();
     }
     else {
-        info('Skipping Submit for Review...');
+        info('Skipping Submit for Publishing...');
     }
     let status;
     if (inputs.status) {

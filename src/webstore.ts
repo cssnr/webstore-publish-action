@@ -34,9 +34,14 @@ export class Webstore {
     return response.data
   }
 
-  async publishExtension() {
+  async publishExtension(options?: {
+    publishType?: 'DEFAULT_PUBLISH' | 'STAGED_PUBLISH'
+    deployInfos?: { deployPercentage: number }[]
+    skipReview?: boolean
+  }) {
     const response = await this.client.post(
       `/v2/publishers/${this.pubId}/items/${this.extId}:publish`,
+      options,
     )
     // console.log('response:', response)
     return response.data
